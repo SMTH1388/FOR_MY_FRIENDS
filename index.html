@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>Send Location</title>
+</head>
+<body style="font-family:sans-serif;text-align:center;padding-top:50px;">
+
+<h2>📍 ارسال موقعیت</h2>
+<button onclick="sendLocation()">ارسال لوکیشن</button>
+<p id="status"></p>
+
+<script>
+const BIN_ID = "698a083cae596e708f1de49d";
+const API_KEY = "$2a$10$jWwjtA1pWhcI1.kT2npaOuVxnwNbQkfKIhPWZackaMHH1h9wBH4QK";
+
+function sendLocation() {
+  navigator.geolocation.getCurrentPosition(pos => {
+
+    fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: { "X-Master-Key": API_KEY }
+    })
+    .then(r => r.json())
+    .then(data => {
+      let users = data.record.users;
+
+      users.push({
+        lat: pos.coords.latitude,
+        lon: pos.coords.longitude,
+        time: new Date().toLocaleString()
+      });
+
+      fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": API_KEY
+        },
+        body: JSON.stringify({ users })
+      }).then(() => {
+        document.getElementById("status").innerText =
+          "لوکیشن ارسال شد ✅";
+      });
+    });
+  });
+}
+</script>
+
+</body>
+</html>
